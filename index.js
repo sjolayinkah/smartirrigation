@@ -1,41 +1,58 @@
 const express = require('express');
-const cors = require('cors');
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.use(cors());
 app.use(express.json());
 
-let dht = { temperature: null, humidity: null };
-let moisture = { moisture: null };
-let pump = { status: 'off', control: 'auto' };
+let latestDHT = { temperature: '--', humidity: '--' };
+let latestMoisture = { moisture: '--' };
+let pumpStatus = { status: 'OFF' };
+let pumpControl = { control: 'auto' };
 
-// Get endpoints
-app.get('/api/sensors/dht', (req, res) => res.json(dht));
-app.get('/api/sensors/moisture', (req, res) => res.json(moisture));
-app.get('/api/pump/status', (req, res) => res.json(pump));
-app.get('/api/pump/control', (req, res) => res.json({ control: pump.control }));
+app.get('/', (req, res) => {
+  res.send('Smart Irrigation API is running!');
+});
 
-// Post endpoints
 app.post('/api/sensors/dht', (req, res) => {
-  dht = req.body;
-  res.sendStatus(200);
+  latestDHT = req.body;
+  res.status(200).send({ message: 'DHT data received' });
 });
+
 app.post('/api/sensors/moisture', (req, res) => {
-  moisture = req.body;
-  res.sendStatus(200);
+  latestMoisture = req.body;
+  res.status(200).send({ message: 'Moisture data received' });
 });
+
 app.post('/api/pump/status', (req, res) => {
-  pump.status = req.body.status;
-  res.sendStatus(200);
+  pumpStatus = req.body;
+  res.status(200).send({ message: 'Pump status received' });
 });
+
+app.get('/api/sensors/dht', (req, res) => {
+  res.send(latestDHT);
+});
+
+app.get('/api/sensors/moisture', (req, res) => {
+  res.send(latestMoisture);
+});
+
+app.get('/api/pump/status', (req, res) => {
+  res.send(pumpStatus);
+});
+
+app.get('/api/pump/control', (req, res) => {
+  res.send(pumpControl);
+});
+
 app.post('/api/pump/control', (req, res) => {
   if (req.body.control === 'toggle') {
-    pump.control = pump.control === 'on' ? 'off' : 'on';
+    pumpControl.control = pumpControl.control === 'on' ? 'off' : 'on';
   } else {
-    pump.control = req.body.control;
+    pumpControl = req.body;
   }
-  res.sendStatus(200);
+  res.status(200).send({ message: 'Pump control updated', control: pumpControl.control });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ API running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
