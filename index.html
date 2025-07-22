@@ -62,7 +62,6 @@
     <h1>🌿 Smart Irrigation Dashboard</h1>
   </header>
 
-  <!-- 🌤 Live Weather -->
   <div class="section-title">🌤 Live Weather</div>
   <div class="container">
     <div class="card">
@@ -70,16 +69,11 @@
       <div class="status" id="weather-temp">-- °C</div>
     </div>
     <div class="card">
-      <h2>💧 Humidity</h2>
-      <div class="status" id="weather-humidity">-- %</div>
-    </div>
-    <div class="card">
       <h2>🌦 Condition</h2>
       <div class="status" id="weather-desc">Loading...</div>
     </div>
   </div>
 
-  <!-- 📍 Sensor Readings -->
   <div class="section-title">📍 Sensor Readings</div>
   <div class="container">
     <div class="card">
@@ -109,14 +103,13 @@
 
     async function fetchData() {
       try {
-        // 🌤 Weather
+        // Weather API
         const weatherRes = await fetch(WEATHER_URL);
         const weatherData = await weatherRes.json();
         document.getElementById('weather-temp').textContent = weatherData.main.temp + ' °C';
-        document.getElementById('weather-humidity').textContent = weatherData.main.humidity + ' %';
         document.getElementById('weather-desc').textContent = weatherData.weather[0].description;
 
-        // 📟 Sensor Readings from ESP8266
+        // Sensor Readings
         const [dht, moisture, pump] = await Promise.all([
           fetch('https://smartirrigation-edx5.onrender.com/api/sensors/dht').then(res => res.json()),
           fetch('https://smartirrigation-edx5.onrender.com/api/sensors/moisture').then(res => res.json()),
@@ -127,7 +120,6 @@
         document.getElementById('humidity').textContent = dht.humidity + ' %';
         document.getElementById('moisture').textContent = moisture.moisture;
         document.getElementById('pump-status').textContent = pump.status.toUpperCase();
-
       } catch (error) {
         console.error('Fetch error:', error);
       }
